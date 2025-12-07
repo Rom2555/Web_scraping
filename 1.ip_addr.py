@@ -19,33 +19,33 @@
 import requests
 import bs4
 
-# response = requests.get('https://www.iplocation.net/')
-# # with open('index.html', 'w') as f:
-# #     f.write(response.text)
-#
-#
-# soup = bs4.BeautifulSoup(response.text, features='lxml')
-# # ip_span = soup.find('span', attrs={'class': 'table-ip4-home'})
-# # print(ip_span.text.strip())
-# # ip_span = soup.find_all('span', attrs={'class': 'table-ip4-home'})
-# # print(ip_span[0].text.strip())
-# # ip_span = soup.find('span', class_='table-ip4-home')
-# # print(ip_span.text.strip())
-#
-#
-# # span_ip = soup.select_one('span.table-ip4-home')
-# # print(span_ip.text.strip())
+response = requests.get('https://www.iplocation.net/')
+# with open('index.html', 'w') as f:
+#     f.write(response.text)
 
 
+soup = bs4.BeautifulSoup(response.text, features='lxml')
+ip_span = soup.find('span', attrs={'class': 'table-ip4-home'})
+print(ip_span.text.strip())
+ip_span = soup.find_all('span', attrs={'class': 'table-ip4-home'})
+print(ip_span[0].text.strip())
+ip_span = soup.find('span', class_='table-ip4-home')
+print(ip_span.text.strip())
 
-from fake_headers import Headers
 
-url = 'https://hh.ru/'
-headers = Headers(browser='chrome', os='mac').generate()
-response = requests.get(url, headers=headers)
-print(response.request.headers)
-with open('index.html', 'w', encoding='utf-8') as f:
-    f.write(response.text)
+span_ip = soup.select_one('span.table-ip4-home')
+print(span_ip.text.strip())
+
+
+#
+# from fake_headers import Headers
+#
+# url = 'https://hh.ru/'
+# headers = Headers(browser='chrome', os='mac').generate()
+# response = requests.get(url, headers=headers)
+# print(response.request.headers)
+# with open('index.html', 'w', encoding='utf-8') as f:
+#     f.write(response.text)
 
 
 
