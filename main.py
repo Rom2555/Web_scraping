@@ -1,16 +1,15 @@
 # https://habr.com/ru/articles/
-from pprint import pprint
+
 import requests
 import bs4
 import json
 
-## Определяем список ключевых слов:
-KEYWORDS = ['дизайн', 'фото', 'web', 'python']
+from fake_headers import Headers
 
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-    'Accept-Language': 'en-US,en;q=0.5'
-}
+## Определяем список ключевых слов:
+KEYWORDS = ['дизайн', 'фото', 'web', 'python', '2025']
+
+headers = Headers(browser='chrome', os='win').generate()
 
 response = requests.get('https://habr.com/ru/articles/', headers=headers)
 response.raise_for_status()
@@ -32,26 +31,32 @@ for article in articles:
         if link.startswith('/'):
             link = 'https://habr.com' + link
 
-        # ⬇️ Время: ищем тег <time> внутри нужного контейнера
+        # Время
         time_tag = article.find('time', {'datetime': True})
         time = time_tag['datetime'] if time_tag else ""
 
-        p_tags = article.find_all('p')
-        article_text = ' '.join(p.get_text(strip=True).lower() for p in p_tags)
+        # Текст статьи
+        snippet_tag = article.find('div', class_='article-formatted-body')
+        # print(snippet_tag)
+        #snippet = snippet_tag.get_text(strip=True) if snippet_tag else ""
+        p_tags = snippet_tag.find_all('p')
+        print(p_tags)
+        if p_tags:
+            article_text = ' '.join(p.get_text(strip=True).lower() for p in p_tags)
 
-        # Проверяем, есть ли хотя бы одно ключевое слово в тексте
-        match_found = any(keyword.lower() in article_text for keyword in KEYWORDS)
-
-        if match_found:
-            parsed_data.append({
-                'title': title,
-                'link': link,
-                'time': time
-            })
-            print(f"Найдено: {title} - {link}")
-
+            # Проверяем, есть ли хотя бы одно ключевое слово в тексте
+            match_found = any(keyword.lower() in article_text.lower() for keyword in KEYWORDS)
+            print(match_found)
+            if match_found:
+                parsed_data.append({
+                    'title': title,
+                    'link': link,
+                    'time': time
+                })
     except Exception as e:
         print(f"Ошибка при парсинге: {e}")
+
+print(f"Найдено {len(parsed_data)} статей с ключевыми словами: {KEYWORDS}")
 
 # Сохранение в JSON
 with open('articles.json', 'w', encoding='utf-8') as f:
