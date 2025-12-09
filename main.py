@@ -4,6 +4,9 @@ import requests
 import bs4
 import json
 
+## Определяем список ключевых слов:
+KEYWORDS = ['дизайн', 'фото', 'web', 'python']
+
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
     'Accept-Language': 'en-US,en;q=0.5'
@@ -33,19 +36,25 @@ for article in articles:
         time_tag = article.find('time', {'datetime': True})
         time = time_tag['datetime'] if time_tag else ""
 
-        # Добавляем данные
-        parsed_data.append({
-            'title': title,
-            'link': link,
-            'time': time
-        })
+        p_tags = article.find_all('p')
+        article_text = ' '.join(p.get_text(strip=True).lower() for p in p_tags)
 
-        print(f"{title} — {time}")
+        # Проверяем, есть ли хотя бы одно ключевое слово в тексте
+        match_found = any(keyword.lower() in article_text for keyword in KEYWORDS)
+
+        if match_found:
+            parsed_data.append({
+                'title': title,
+                'link': link,
+                'time': time
+            })
+            print(f"Найдено: {title} - {link}")
+
     except Exception as e:
-        print(f"Ошибка при парсинге статьи: {e}")
+        print(f"Ошибка при парсинге: {e}")
 
 # Сохранение в JSON
 with open('articles.json', 'w', encoding='utf-8') as f:
     json.dump(parsed_data, f, ensure_ascii=False, indent=4)
 
-print("✅ Парсинг завершён. Данные сохранены в articles.json")
+print("Парсинг завершён. Данные сохранены в articles.json")
