@@ -1,15 +1,13 @@
-from datetime import datetime
-
 import json
-import requests
+from datetime import datetime
+from urllib.parse import urljoin
 
 import bs4
+import requests
 from fake_headers import Headers
 
 # URL главной страницы:
 URL = "https://habr.com/ru/articles/"
-# URL части сайта:
-PART_URL = "https://habr.com"
 # Определяем список ключевых слов:
 KEYWORDS = ["дизайн", "фото", "web", "python"]
 
@@ -64,9 +62,8 @@ def parse_article(article):
 
         # Ссылка
         link_tag = article.find("a", class_="tm-title__link")
-        link = link_tag["href"] if link_tag else ""
-        if link.startswith("/"):
-            link = PART_URL + link
+        article_link = link_tag["href"] if link_tag else ""
+        link = urljoin(URL, article_link)
 
         # Время
         time_tag = article.find("time", {"datetime": True})
