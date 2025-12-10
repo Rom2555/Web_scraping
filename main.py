@@ -1,4 +1,4 @@
-# https://habr.com/ru/articles/
+
 
 import requests
 import bs4
@@ -6,17 +6,23 @@ import json
 
 from fake_headers import Headers
 
+URL = "https://habr.com/ru/articles/"
+PART_URL = "https://habr.com/ru"
 ## Определяем список ключевых слов:
-KEYWORDS = ['дизайн', 'фото', 'web', 'python', '2025']
-
+KEYWORDS = ['дизайн', 'фото', 'web', 'python']
 headers = Headers(browser='chrome', os='win').generate()
 
-response = requests.get('https://habr.com/ru/articles/', headers=headers)
-response.raise_for_status()
-
-soup = bs4.BeautifulSoup(response.text, 'html.parser')
-
-articles = soup.find_all('article', class_='tm-articles-list__item')
+try:
+    response = requests.get(URL, headers=headers)
+    response.raise_for_status()
+    soup = bs4.BeautifulSoup(response.text, 'html.parser')
+    articles = soup.find_all('article', class_='tm-articles-list__item')
+except requests.exceptions.HTTPError as er:
+    print(f"Ошибка HTTP: {er}")
+    exit(1)
+except Exception as e:
+    print(f"Ошибка: {e}")
+    exit(1)
 
 parsed_data = []
 for article in articles:
@@ -29,7 +35,7 @@ for article in articles:
         link_tag = article.find('a', class_='tm-title__link')
         link = link_tag['href'] if link_tag else ""
         if link.startswith('/'):
-            link = 'https://habr.com' + link
+            link = PART_URL + link
 
         # Время
         time_tag = article.find('time', {'datetime': True})
