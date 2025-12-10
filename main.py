@@ -1,8 +1,9 @@
 from datetime import datetime
 
-import requests
-import bs4
 import json
+import requests
+
+import bs4
 from fake_headers import Headers
 
 # URL главной страницы:
@@ -75,7 +76,7 @@ def parse_article(article):
         # Текст статьи
         snippet_tag = article.find("div", class_="article-formatted-body")
         article_text = extract_text_from_snippet(snippet_tag)
-        all_text = title.lower() + " " + article_text
+        all_text = f"{title.lower()} {article_text}"
         # Проверяем, есть ли хотя бы одно ключевое слово в тексте
         if any(keyword.lower() in all_text for keyword in KEYWORDS):
             return {"title": title, "link": link, "date_time": human_time}
